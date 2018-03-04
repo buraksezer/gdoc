@@ -5,7 +5,7 @@ import (
 
 	"math/rand"
 
-	"github.com/buraksezer/gsearch/cmd"
+	"github.com/buraksezer/gdoc/cmd"
 )
 
 func init() {

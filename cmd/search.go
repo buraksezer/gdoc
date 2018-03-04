@@ -30,14 +30,19 @@ var (
 	searchUrl      = "https://api.godoc.org/search"
 )
 
-var rootCmd = &cobra.Command{
-	Use:              "gsearch",
-	Short:            "Search GoDoc.org via command-line",
+var searchCmd = &cobra.Command{
+	Use:              "search",
+	Short:            "Search given keyword on GoDoc.org",
 	TraverseChildren: true,
-	Run:              gsearch,
+	Run:              search,
 }
 
-func gsearch(_ *cobra.Command, args []string) {
+func init() {
+	searchCmd.Flags().IntVarP(&maxResultCount, "count", "c", 0, "sets maximum result count")
+	rootCmd.AddCommand(searchCmd)
+}
+
+func search(_ *cobra.Command, args []string) {
 	if len(args) == 0 {
 		fmt.Println("error: give a keyword to search")
 		os.Exit(1)
@@ -67,9 +72,4 @@ func gsearch(_ *cobra.Command, args []string) {
 		}
 		fmt.Printf("\n")
 	}
-}
-
-func Execute() {
-	rootCmd.Flags().IntVarP(&maxResultCount, "count", "c", 0, "sets maximum result count")
-	rootCmd.Execute()
 }

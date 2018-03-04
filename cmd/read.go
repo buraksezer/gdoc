@@ -16,27 +16,27 @@ import (
 )
 
 var (
-	docUrl       = "https://godoc.org"
+	readUrl      = "https://godoc.org"
 	disablePager bool
 )
 
-var docCmd = &cobra.Command{
-	Use:   "doc",
+var readCmd = &cobra.Command{
+	Use:   "read",
 	Short: "Get the documentation for a package",
-	Run:   gdoc,
+	Run:   read,
 }
 
 func init() {
-	docCmd.Flags().BoolVar(&disablePager, "disable-pager", false, "disables piping package documentation to the pager")
-	rootCmd.AddCommand(docCmd)
+	readCmd.Flags().BoolVar(&disablePager, "disable-pager", false, "disables piping package documentation to the pager")
+	rootCmd.AddCommand(readCmd)
 }
 
-func gdoc(_ *cobra.Command, args []string) {
+func read(_ *cobra.Command, args []string) {
 	if len(args) == 0 {
 		fmt.Println("error: give a keyword to search")
 		os.Exit(1)
 	}
-	target, _ := url.Parse(docUrl)
+	target, _ := url.Parse(readUrl)
 	target.Path = path.Join("/", args[0])
 	req, err := http.NewRequest(http.MethodGet, target.String(), nil)
 	if err != nil {
