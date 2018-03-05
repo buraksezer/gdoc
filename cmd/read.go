@@ -3,7 +3,6 @@ package cmd
 import (
 	"bytes"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -106,19 +105,8 @@ func read(_ *cobra.Command, args []string) {
 	}
 
 	c := exec.Command("/usr/bin/less")
-	wr, err := c.StdinPipe()
-	if err != nil {
-		fmt.Printf("error: failed to get pipe: %v\n", err)
-		os.Exit(1)
-	}
 	c.Stdout = os.Stdout
-	reader := bytes.NewReader(data)
-	go func() {
-		_, cerr := io.Copy(wr, reader)
-		if cerr != nil {
-			fmt.Printf("error: failed to copy Stdin: %s\n", err)
-		}
-	}()
+	c.Stdin = bytes.NewReader(data)
 	if err := c.Run(); err != nil {
 		fmt.Printf("error: failed to run less: %v\n", err)
 		os.Exit(1)
