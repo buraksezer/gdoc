@@ -8,11 +8,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var configCmd = &cobra.Command{
-	Use:   "config",
-	Short: "Manage configuration",
-}
-
 var aliasCmd = &cobra.Command{
 	Use:   "alias",
 	Short: "Set, delete or list package aliases",
@@ -99,8 +94,7 @@ var listAliasCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(configCmd)
-	configCmd.AddCommand(aliasCmd)
+	rootCmd.AddCommand(aliasCmd)
 	aliasCmd.AddCommand(setAliasCmd)
 	aliasCmd.AddCommand(delAliasCmd)
 	aliasCmd.AddCommand(listAliasCmd)
