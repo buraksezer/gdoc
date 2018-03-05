@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 
 	bolt "github.com/coreos/bbolt"
 	"github.com/spf13/cobra"
@@ -20,22 +19,25 @@ var setAliasCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		dpath, err := findGdocDB()
 		if err != nil {
-			log.Fatal("error:", err)
+			logger.Fatal(err)
 		}
 		db, err := bolt.Open(dpath, 0600, nil)
 		if err != nil {
-			log.Fatal(err)
+			logger.Fatalf("failed to open db: %v", err)
 		}
 		defer db.Close()
 
 		name, pkg := args[0], args[1]
-		db.Update(func(tx *bolt.Tx) error {
+		err = db.Update(func(tx *bolt.Tx) error {
 			b, err := tx.CreateBucketIfNotExists([]byte("alias"))
 			if err != nil {
 				return fmt.Errorf("create bucket: %s", err)
 			}
 			return b.Put([]byte(name), []byte(pkg))
 		})
+		if err != nil {
+			logger.Fatalf("failed to get aliases: %v", err)
+		}
 	},
 }
 
@@ -46,22 +48,25 @@ var delAliasCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		dpath, err := findGdocDB()
 		if err != nil {
-			log.Fatal("error:", err)
+			logger.Fatal(err)
 		}
 		db, err := bolt.Open(dpath, 0600, nil)
 		if err != nil {
-			log.Fatal(err)
+			logger.Fatalf("failed to open db: %v", err)
 		}
 		defer db.Close()
 
 		name := args[0]
-		db.Update(func(tx *bolt.Tx) error {
+		err = db.Update(func(tx *bolt.Tx) error {
 			b, err := tx.CreateBucketIfNotExists([]byte("alias"))
 			if err != nil {
 				return fmt.Errorf("create bucket: %s", err)
 			}
 			return b.Delete([]byte(name))
 		})
+		if err != nil {
+			logger.Fatalf("failed to get aliases: %v", err)
+		}
 	},
 }
 
@@ -71,15 +76,15 @@ var listAliasCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		dpath, err := findGdocDB()
 		if err != nil {
-			log.Fatal("error:", err)
+			logger.Fatal(err)
 		}
 		db, err := bolt.Open(dpath, 0600, nil)
 		if err != nil {
-			log.Fatal(err)
+			logger.Fatalf("failed to open db: %v", err)
 		}
 		defer db.Close()
 
-		db.Update(func(tx *bolt.Tx) error {
+		err = db.Update(func(tx *bolt.Tx) error {
 			b, err := tx.CreateBucketIfNotExists([]byte("alias"))
 			if err != nil {
 				return fmt.Errorf("create bucket: %s", err)
@@ -90,6 +95,9 @@ var listAliasCmd = &cobra.Command{
 			}
 			return nil
 		})
+		if err != nil {
+			logger.Fatalf("failed to get aliases: %v", err)
+		}
 	},
 }
 

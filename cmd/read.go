@@ -73,42 +73,42 @@ func read(_ *cobra.Command, args []string) {
 			log.Fatal(err)
 		}
 	}
+	if err := getDocument(pkgpath); err != nil {
+		logger.Fatal(fmt.Sprintf("failed to get document: %v", err))
+	}
+}
+
+func getDocument(pkgpath string) error {
 	target, _ := url.Parse(readUrl)
 	target.Path = path.Join("/", pkgpath)
 	req, err := http.NewRequest(http.MethodGet, target.String(), nil)
 	if err != nil {
-		fmt.Println("Failed to get document:", err)
-		os.Exit(1)
+		return err
 	}
 	req.Header.Set("Accept", "text/plain")
 	r, err := client.Do(req)
 	if err != nil {
-		fmt.Println("error:", err)
-		os.Exit(1)
+		return err
 	}
 	defer r.Body.Close()
 
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		fmt.Printf("error: failed to read response body: %v\n", err)
-		os.Exit(1)
+		return err
 	}
 	if r.StatusCode != http.StatusOK {
-		fmt.Printf("error: godoc.org returned HTTP %d: %s\n",
+		err = fmt.Errorf("error: godoc.org returned HTTP %d: %s\n",
 			r.StatusCode, strings.TrimSpace(string(data)))
-		os.Exit(1)
+		return err
 	}
 
 	if disablePager {
 		fmt.Println(string(data))
-		return
+		return nil
 	}
 
 	c := exec.Command("/usr/bin/less")
 	c.Stdout = os.Stdout
 	c.Stdin = bytes.NewReader(data)
-	if err := c.Run(); err != nil {
-		fmt.Printf("error: failed to run less: %v\n", err)
-		os.Exit(1)
-	}
+	return c.Run()
 }

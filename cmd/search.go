@@ -51,15 +51,17 @@ func search(_ *cobra.Command, args []string) {
 	target.RawQuery = "q=" + args[0]
 	r, err := client.Get(target.String())
 	if err != nil {
-		fmt.Println("error: failed to search:", err)
-		os.Exit(1)
+		logger.Fatalf("failed to search: %v", err)
 	}
 	defer r.Body.Close()
 
 	results := &Results{}
 	if err := json.NewDecoder(r.Body).Decode(results); err != nil {
-		fmt.Println("error: failed to search:", err)
-		os.Exit(1)
+		logger.Fatalf("failed to search: %v", err)
+	}
+
+	if len(results.Results) == 0 {
+		logger.Fatalf("nothing found")
 	}
 
 	pkgs := make(map[int]string)
@@ -85,21 +87,17 @@ func search(_ *cobra.Command, args []string) {
 		fmt.Printf("\nGive a number to read the document: \n")
 		snum, err := reader.ReadString('\n')
 		if err != nil {
-			fmt.Println("error:", err)
-			os.Exit(1)
+			logger.Fatal(err)
 		}
 		snum = strings.TrimSpace(snum)
 		num, err := strconv.Atoi(snum)
 		if err != nil {
-			fmt.Println("error:", err)
-			os.Exit(1)
+			logger.Fatal(err)
 		}
 		pkg, ok := pkgs[num]
 		if !ok {
-			fmt.Println("error: invalid index")
-			os.Exit(1)
+			logger.Fatal("invalid index")
 		}
-		fmt.Println("Getting documentation for", pkg)
 		read(nil, []string{pkg})
 	}
 }

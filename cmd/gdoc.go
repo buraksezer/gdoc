@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"path"
 	"runtime"
@@ -13,6 +14,8 @@ const (
 	releaseVersion = "0.1"
 	dbname         = ".gdoc.db"
 )
+
+var logger = log.New(os.Stderr, "error: ", 0)
 
 var rootCmd = &cobra.Command{
 	Use:     "gdoc",
