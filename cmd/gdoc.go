@@ -4,15 +4,20 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"runtime"
 
 	"github.com/spf13/cobra"
 )
 
-const dbname = ".gdoc.db"
+const (
+	releaseVersion = "0.1"
+	dbname         = ".gdoc.db"
+)
 
 var rootCmd = &cobra.Command{
-	Use:   "gdoc",
-	Short: "Search GoDoc.org via command-line",
+	Use:     "gdoc",
+	Short:   "Search GoDoc.org via command-line",
+	Version: fmt.Sprintf("%s with %s", releaseVersion, runtime.Version()),
 }
 
 func findGdocDB() (string, error) {

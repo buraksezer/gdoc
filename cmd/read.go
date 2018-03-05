@@ -13,7 +13,7 @@ import (
 	"path"
 	"strings"
 
-	"github.com/boltdb/bolt"
+	bolt "github.com/coreos/bbolt"
 	"github.com/spf13/cobra"
 )
 
