@@ -20,7 +20,6 @@ type Result struct {
 	Synopsis    string  `json:"synopsis"`
 	Stars       int     `json:"stars"`
 	Score       float64 `json:"score"`
-	Fork        bool    `json:"fork"`
 }
 
 type Results struct {
@@ -43,7 +42,7 @@ var searchCmd = &cobra.Command{
 
 func init() {
 	searchCmd.Flags().BoolVarP(&interactive, "interactive", "i", false, "enable interactive mode")
-	searchCmd.Flags().IntVarP(&maxResultCount, "count", "c", 0, "sets maximum result count")
+	searchCmd.Flags().IntVarP(&maxResultCount, "count", "c", 10, "sets maximum result count")
 	rootCmd.AddCommand(searchCmd)
 }
 
@@ -71,7 +70,7 @@ func search(_ *cobra.Command, args []string) {
 		} else {
 			fmt.Printf("==> %s\n", res.Path)
 		}
-		fmt.Printf("==> imports: %d stars: %d fork: %v\n", res.ImportCount, res.Stars, res.Fork)
+		fmt.Printf("==> imports: %d stars: %d\n", res.ImportCount, res.Stars)
 		if len(res.Synopsis) > 0 {
 			fmt.Printf("%s\n", res.Synopsis)
 		}
