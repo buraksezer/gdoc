@@ -35,10 +35,10 @@ var (
 )
 
 var searchCmd = &cobra.Command{
-	Use:              "search",
-	Short:            "Search given keyword on GoDoc.org",
-	TraverseChildren: true,
-	Run:              search,
+	Use:   "search [keyword]",
+	Short: "Search given keyword on GoDoc.org",
+	Args:  cobra.MinimumNArgs(1),
+	Run:   search,
 }
 
 func init() {
@@ -48,10 +48,6 @@ func init() {
 }
 
 func search(_ *cobra.Command, args []string) {
-	if len(args) == 0 {
-		fmt.Println("error: give a keyword to search")
-		os.Exit(1)
-	}
 	target, _ := url.Parse(searchUrl)
 	target.RawQuery = "q=" + args[0]
 	r, err := client.Get(target.String())

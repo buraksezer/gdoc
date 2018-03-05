@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -12,32 +13,69 @@ import (
 	"path"
 	"strings"
 
+	"github.com/boltdb/bolt"
 	"github.com/spf13/cobra"
 )
 
 var (
 	readUrl      = "https://godoc.org"
 	disablePager bool
+	pkgAlias     bool
 )
 
 var readCmd = &cobra.Command{
-	Use:   "read",
+	Use:   "read [pkgpath]",
 	Short: "Get the documentation for a package",
+	Args:  cobra.MinimumNArgs(1),
 	Run:   read,
 }
 
 func init() {
 	readCmd.Flags().BoolVar(&disablePager, "disable-pager", false, "disables piping package documentation to the pager")
+	readCmd.Flags().BoolVarP(&pkgAlias, "alias", "a", false, "retrieve package documentation by its alias")
 	rootCmd.AddCommand(readCmd)
 }
 
+func getPkgpath(name string) (string, error) {
+	dpath, err := findGdocDB()
+	if err != nil {
+		return "", err
+	}
+	db, err := bolt.Open(dpath, 0600, nil)
+	if err != nil {
+		return "", err
+	}
+	defer db.Close()
+
+	var pkgpath string
+	res := db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte("alias"))
+		if b == nil {
+			return fmt.Errorf("alias could not be found")
+		}
+		v := b.Get([]byte(name))
+		if len(v) == 0 {
+			return fmt.Errorf("alias could not be found")
+		}
+		pkgpath = string(v)
+		return nil
+	})
+	return pkgpath, res
+}
+
 func read(_ *cobra.Command, args []string) {
-	if len(args) == 0 {
-		fmt.Println("error: give a keyword to search")
-		os.Exit(1)
+	var pkgpath string
+	var err error
+	if !pkgAlias {
+		pkgpath = args[0]
+	} else {
+		pkgpath, err = getPkgpath(args[0])
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 	target, _ := url.Parse(readUrl)
-	target.Path = path.Join("/", args[0])
+	target.Path = path.Join("/", pkgpath)
 	req, err := http.NewRequest(http.MethodGet, target.String(), nil)
 	if err != nil {
 		fmt.Println("Failed to get document:", err)
