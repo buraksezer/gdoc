@@ -1,11 +1,14 @@
 package cmd
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -25,6 +28,7 @@ type Results struct {
 }
 
 var (
+	selective      bool
 	maxResultCount int
 	client         = &http.Client{}
 	searchUrl      = "https://api.godoc.org/search"
@@ -38,6 +42,7 @@ var searchCmd = &cobra.Command{
 }
 
 func init() {
+	searchCmd.Flags().BoolVarP(&selective, "selective", "s", false, "enable selective mode")
 	searchCmd.Flags().IntVarP(&maxResultCount, "count", "c", 0, "sets maximum result count")
 	rootCmd.AddCommand(searchCmd)
 }
@@ -61,15 +66,45 @@ func search(_ *cobra.Command, args []string) {
 		fmt.Println("error: failed to search:", err)
 		os.Exit(1)
 	}
+
+	pkgs := make(map[int]string)
 	for index, res := range results.Results {
-		fmt.Printf("==> %s\n", res.Path)
+		if selective {
+			fmt.Printf("==> (%d) %s\n", index+1, res.Path)
+			pkgs[index+1] = res.Path
+		} else {
+			fmt.Printf("==> %s\n", res.Path)
+		}
 		fmt.Printf("==> imports: %d stars: %d fork: %v\n", res.ImportCount, res.Stars, res.Fork)
 		if len(res.Synopsis) > 0 {
 			fmt.Printf("%s\n", res.Synopsis)
 		}
 		if maxResultCount != 0 && index+1 >= maxResultCount {
-			return
+			break
 		}
 		fmt.Printf("\n")
+	}
+
+	if selective {
+		reader := bufio.NewReader(os.Stdin)
+		fmt.Printf("\nGive a number to read the document: \n")
+		snum, err := reader.ReadString('\n')
+		if err != nil {
+			fmt.Println("error:", err)
+			os.Exit(1)
+		}
+		snum = strings.TrimSpace(snum)
+		num, err := strconv.Atoi(snum)
+		if err != nil {
+			fmt.Println("error:", err)
+			os.Exit(1)
+		}
+		pkg, ok := pkgs[num]
+		if !ok {
+			fmt.Println("error: invalid index")
+			os.Exit(1)
+		}
+		fmt.Println("Getting documentation for", pkg)
+		read(nil, []string{pkg})
 	}
 }
