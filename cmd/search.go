@@ -28,7 +28,7 @@ type Results struct {
 }
 
 var (
-	selective      bool
+	interactive    bool
 	maxResultCount int
 	client         = &http.Client{}
 	searchUrl      = "https://api.godoc.org/search"
@@ -42,7 +42,7 @@ var searchCmd = &cobra.Command{
 }
 
 func init() {
-	searchCmd.Flags().BoolVarP(&selective, "selective", "s", false, "enable selective mode")
+	searchCmd.Flags().BoolVarP(&interactive, "interactive", "i", false, "enable interactive mode")
 	searchCmd.Flags().IntVarP(&maxResultCount, "count", "c", 0, "sets maximum result count")
 	rootCmd.AddCommand(searchCmd)
 }
@@ -69,7 +69,7 @@ func search(_ *cobra.Command, args []string) {
 
 	pkgs := make(map[int]string)
 	for index, res := range results.Results {
-		if selective {
+		if interactive {
 			fmt.Printf("==> (%d) %s\n", index+1, res.Path)
 			pkgs[index+1] = res.Path
 		} else {
@@ -85,7 +85,7 @@ func search(_ *cobra.Command, args []string) {
 		fmt.Printf("\n")
 	}
 
-	if selective {
+	if interactive {
 		reader := bufio.NewReader(os.Stdin)
 		fmt.Printf("\nGive a number to read the document: \n")
 		snum, err := reader.ReadString('\n')
