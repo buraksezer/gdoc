@@ -1,7 +1,7 @@
 # gdoc
 [![Go Report Card](https://goreportcard.com/badge/github.com/buraksezer/gdoc)](https://goreportcard.com/report/github.com/buraksezer/gdoc)
 
-gdoc is a small utility to search keywords on GoDoc.org and it has some handy functions to read package documents to read in command line.
+gdoc is a small utility to search on GoDoc.org. It also has some handy functions to read package documents.
 
 **Warning:** This tool is only tested on Linux and OSX. 
 
