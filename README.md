@@ -1,7 +1,7 @@
 # gdoc
 gdoc is a small utility to search keywords on GoDoc.org and it has some handy functions to read package documents to read in command line.
 
-**Warning:** This tool is only tested Linux and OSX. 
+**Warning:** This tool is only tested on Linux and OSX. 
 
 ### Install
 With a properly configured Go environment:
@@ -52,7 +52,7 @@ gdoc read github.com/hashicorp/memberlist
 ```
 
 Fetches the package document from GoDoc.org in text format and passes it to an available the pager. gdoc looks for `GDOC_PAGER` and `PAGER` environment 
-variables to get pager command as respectively. If you want to disable paging, use `--disable-pager` parameter.
+variables to get pager command as respectively. If you want to disable paging, use `--disable-pager` parameter:
 ```sh
 gdoc read --disable-pager <package path> 
 ```
