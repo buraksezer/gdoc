@@ -17,7 +17,7 @@ import (
 )
 
 var (
-	readUrl      = "https://godoc.org"
+	readURL      = "https://godoc.org"
 	disablePager bool
 	pkgAlias     bool
 )
@@ -44,7 +44,11 @@ func getPkgpath(name string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer db.Close()
+	defer func() {
+		if derr := db.Close(); derr != nil {
+			logger.Println("failed to close boltdb: ", derr)
+		}
+	}()
 
 	var pkgpath string
 	res := db.View(func(tx *bolt.Tx) error {
@@ -79,7 +83,7 @@ func read(_ *cobra.Command, args []string) {
 }
 
 func getDocument(pkgpath string) error {
-	target, _ := url.Parse(readUrl)
+	target, _ := url.Parse(readURL)
 	target.Path = path.Join("/", pkgpath)
 	req, err := http.NewRequest(http.MethodGet, target.String(), nil)
 	if err != nil {
@@ -90,24 +94,34 @@ func getDocument(pkgpath string) error {
 	if err != nil {
 		return err
 	}
-	defer r.Body.Close()
+	defer func() {
+		if berr := r.Body.Close(); err != nil {
+			logger.Println("failed to close request body:", berr)
+		}
+	}()
 
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		return err
 	}
 	if r.StatusCode != http.StatusOK {
-		err = fmt.Errorf("error: godoc.org returned HTTP %d: %s\n",
-			r.StatusCode, strings.TrimSpace(string(data)))
-		return err
+		msg := strings.TrimSpace(string(data))
+		return fmt.Errorf("godoc.org returned HTTP %d: %s", r.StatusCode, msg)
 	}
 
 	if disablePager {
 		fmt.Println(string(data))
 		return nil
 	}
-
-	c := exec.Command("/usr/bin/less")
+	// GDOC_PAGER is useful for setting special pager command for gdoc.
+	cmd := os.Getenv("GDOC_PAGER")
+	if cmd == "" {
+		cmd = os.Getenv("PAGER")
+	}
+	if cmd == "" {
+		logger.Fatal("no available pager found")
+	}
+	c := exec.Command("sh", "-c", cmd)
 	c.Stdout = os.Stdout
 	c.Stdin = bytes.NewReader(data)
 	return c.Run()

@@ -25,13 +25,17 @@ var setAliasCmd = &cobra.Command{
 		if err != nil {
 			logger.Fatalf("failed to open db: %v", err)
 		}
-		defer db.Close()
+		defer func() {
+			if derr := db.Close(); derr != nil {
+				logger.Println("failed to close boltdb: ", derr)
+			}
+		}()
 
 		name, pkg := args[0], args[1]
 		err = db.Update(func(tx *bolt.Tx) error {
-			b, err := tx.CreateBucketIfNotExists([]byte("alias"))
-			if err != nil {
-				return fmt.Errorf("create bucket: %s", err)
+			b, berr := tx.CreateBucketIfNotExists([]byte("alias"))
+			if berr != nil {
+				return fmt.Errorf("create bucket: %s", berr)
 			}
 			return b.Put([]byte(name), []byte(pkg))
 		})
@@ -54,13 +58,17 @@ var delAliasCmd = &cobra.Command{
 		if err != nil {
 			logger.Fatalf("failed to open db: %v", err)
 		}
-		defer db.Close()
+		defer func() {
+			if derr := db.Close(); derr != nil {
+				logger.Println("failed to close boltdb: ", derr)
+			}
+		}()
 
 		name := args[0]
 		err = db.Update(func(tx *bolt.Tx) error {
-			b, err := tx.CreateBucketIfNotExists([]byte("alias"))
-			if err != nil {
-				return fmt.Errorf("create bucket: %s", err)
+			b, berr := tx.CreateBucketIfNotExists([]byte("alias"))
+			if berr != nil {
+				return fmt.Errorf("create bucket: %s", berr)
 			}
 			return b.Delete([]byte(name))
 		})
@@ -82,12 +90,16 @@ var listAliasCmd = &cobra.Command{
 		if err != nil {
 			logger.Fatalf("failed to open db: %v", err)
 		}
-		defer db.Close()
+		defer func() {
+			if derr := db.Close(); derr != nil {
+				logger.Println("failed to close boltdb: ", derr)
+			}
+		}()
 
 		err = db.Update(func(tx *bolt.Tx) error {
-			b, err := tx.CreateBucketIfNotExists([]byte("alias"))
-			if err != nil {
-				return fmt.Errorf("create bucket: %s", err)
+			b, berr := tx.CreateBucketIfNotExists([]byte("alias"))
+			if berr != nil {
+				return fmt.Errorf("create bucket: %s", berr)
 			}
 			c := b.Cursor()
 			for k, v := c.First(); k != nil; k, v = c.Next() {

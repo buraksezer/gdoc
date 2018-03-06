@@ -13,6 +13,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// Result represents an item in query result.
 type Result struct {
 	Name        string  `json:"name"`
 	Path        string  `json:"path"`
@@ -22,6 +23,7 @@ type Result struct {
 	Score       float64 `json:"score"`
 }
 
+// Results carries Result items from GoDoc.org
 type Results struct {
 	Results []Result
 }
@@ -30,7 +32,7 @@ var (
 	interactive    bool
 	maxResultCount int
 	client         = &http.Client{}
-	searchUrl      = "https://api.godoc.org/search"
+	searchURL      = "https://api.godoc.org/search"
 )
 
 var searchCmd = &cobra.Command{
@@ -47,13 +49,17 @@ func init() {
 }
 
 func search(_ *cobra.Command, args []string) {
-	target, _ := url.Parse(searchUrl)
+	target, _ := url.Parse(searchURL)
 	target.RawQuery = "q=" + args[0]
 	r, err := client.Get(target.String())
 	if err != nil {
 		logger.Fatalf("failed to search: %v", err)
 	}
-	defer r.Body.Close()
+	defer func() {
+		if berr := r.Body.Close(); err != nil {
+			logger.Println("failed to close request body:", berr)
+		}
+	}()
 
 	results := &Results{}
 	if err := json.NewDecoder(r.Body).Decode(results); err != nil {

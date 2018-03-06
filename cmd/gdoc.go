@@ -31,6 +31,10 @@ func findGdocDB() (string, error) {
 	return path.Join(home, dbname), nil
 }
 
+// Execute uses the args (os.Args[1:] by default) and run through the command tree finding
+// appropriate matches for commands and then corresponding flags.
 func Execute() {
-	rootCmd.Execute()
+	if err := rootCmd.Execute(); err != nil {
+		logger.Println("failed to run gdoc:", err)
+	}
 }
