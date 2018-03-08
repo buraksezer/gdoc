@@ -9,7 +9,7 @@ gdoc is a small utility to search on GoDoc.org. It's also suitable to read packa
 With a properly configured Go environment:
 
 ```
-go get -u github.com/buraksezer/gdoc/cmd...
+go get -u github.com/buraksezer/gdoc
 ```
 
 ### Usage
