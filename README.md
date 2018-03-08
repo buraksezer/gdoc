@@ -1,7 +1,7 @@
 # gdoc
 [![Go Report Card](https://goreportcard.com/badge/github.com/buraksezer/gdoc)](https://goreportcard.com/report/github.com/buraksezer/gdoc)
 
-gdoc is a small utility to search on GoDoc.org. It also has some handy functions to read package documents.
+gdoc is a small utility to search on GoDoc.org. It's also suitable to read package documents via command-line.
 
 **Warning:** This tool is only tested on Linux and OSX. 
 
@@ -23,8 +23,7 @@ gdoc lists the first 10 package as default. If you want to increase or decrease 
 ```
 gdoc search -c 3 <keyword>
 ```
-gdoc has an interactive mode. If you use the `-i/--interactive` parameter when you search something, gdoc lists packages with numbers and
-await for your action to fetch its document from GoDoc.org.
+gdoc has an interactive mode. If you use the `-i/--interactive` parameter when you search something, gdoc lists packages with numbers and await for your action to fetch its document from GoDoc.org.
 
 Sample output:
 ```
@@ -53,14 +52,12 @@ Sample usage:
 gdoc read github.com/hashicorp/memberlist
 ```
 
-Fetches the package document from GoDoc.org in text format and passes it to an available the pager. gdoc looks for `GDOC_PAGER` and `PAGER` environment 
-variables to get pager command as respectively. If you want to disable paging, use `--disable-pager` parameter:
+Fetches the package document from GoDoc.org in text format and passes it to an available pager. gdoc looks for `GDOC_PAGER` and `PAGER` environment variables to get the pager command as respectively. If you want to disable paging, use `--disable-pager` parameter:
 ```
 gdoc read --disable-pager <package path> 
 ```
 
-gdoc supports aliases to access easily the frequently used documents. If you set an alias for a package previously, just use `-a/--alias` to get the 
-document for that package.
+gdoc supports aliases to access easily the frequently used documents. If you set an alias for a package previously, just use `-a/--alias` to get the document for that package.
 
 ```
 gdoc read -a <alias>
