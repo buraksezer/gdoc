@@ -52,7 +52,7 @@ Sample usage:
 gdoc read github.com/hashicorp/memberlist
 ```
 
-Fetches the package document from GoDoc.org in text format and passes it to an available pager. gdoc looks for `GDOC_PAGER` and `PAGER` environment variables to get the pager command as respectively. If you want to disable paging, use `--disable-pager` parameter:
+Fetches the package document from GoDoc.org in text format and pipes to an available pager. gdoc looks for `GDOC_PAGER` and `PAGER` environment variables to get the pager command as respectively. If you want to disable paging, use `--disable-pager` parameter:
 ```
 gdoc read --disable-pager <package path> 
 ```
